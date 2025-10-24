@@ -145,14 +145,19 @@ export default function LabelsPage() {
           <Button
             className="bg-black hover:bg-gray-800 text-white px-16 py-6 rounded-lg text-xl font-semibold"
             disabled={selectedProducts.length === 0}
-            onClick={() => {
-              console.log('生成标签', selectedProducts);
-            }}
+            onClick={() => setDialogOpen(true)}
           >
             生成标签
           </Button>
         </div>
       </div>
+
+      {/* 标签设置弹窗 */}
+      <LabelSettingsDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        selectedProducts={products.filter(p => selectedProducts.includes(p.id!))}
+      />
     </div>
   );
 }
