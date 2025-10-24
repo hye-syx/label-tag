@@ -81,9 +81,8 @@ export function LabelSettingsDialog({
 
   const handleConfirm = () => {
     try {
-      // 创建临时 canvas 用于生成 PDF
-      const canvas = document.createElement('canvas');
-      const renderer = new LabelRenderer(canvas);
+      // 创建 renderer 实例并生成 PDF
+      const renderer = new LabelRenderer();
 
       // 生成 PDF
       renderer.exportToPDF(selectedProducts, {
@@ -93,9 +92,7 @@ export function LabelSettingsDialog({
       });
 
       // 显示成功提示
-      toast.success('生成成功', {
-        description: '失败原因'
-      });
+      toast.success('生成成功');
 
       onOpenChange(false);
     } catch (error) {
