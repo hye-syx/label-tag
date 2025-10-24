@@ -68,7 +68,7 @@ export default function LabelsPage() {
       <div className="px-8 pb-8 max-w-[60%] mx-auto">
         {/* 顶部区域 */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-medium text-gray-900">产品列表</h2>
+          <h2 className="text-3xl font-medium text-gray-900">产品列表</h2>
           <Button
             className="bg-white hover:bg-gray-50 text-black border border-gray-300 px-6 py-2 rounded"
             onClick={() => router.push('/')}
@@ -80,7 +80,7 @@ export default function LabelsPage() {
         {/* 搜索框 */}
         <div className="mb-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input
               placeholder="搜索产品名称、订单号、货号、批次"
               value={searchTerm}
@@ -92,8 +92,8 @@ export default function LabelsPage() {
 {/* 表格容器 */}
 <div className="border border-gray-300 rounded-lg overflow-hidden">
   {/* 表头 - 固定不滚动 */}
-  <div className="bg-white border-b border-gray-300 overflow-y-scroll">
-    <div className="grid grid-cols-[auto_3fr_2fr_1.5fr_1.5fr_1fr] gap-2 px-6 py-3 text-sm font-medium text-gray-500">
+  <div className="bg-white border-b border-gray-300">
+    <div className="grid grid-cols-[auto_3fr_2fr_1.5fr_1.5fr_1fr] gap-2 pl-6 pr-[calc(1.5rem+17px)] py-3 text-base font-medium text-gray-500">
       <div className="flex items-center">
         <Checkbox
           checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
@@ -104,7 +104,7 @@ export default function LabelsPage() {
       <div className="px-2">订单号</div>
       <div className="px-2">货号</div>
       <div className="px-2">批次</div>
-      <div className="pr-24 text-right">数量</div>
+      <div className="text-right pr-20">数量</div>
     </div>
   </div>
 
@@ -113,7 +113,7 @@ export default function LabelsPage() {
     {filteredProducts.map((product, index) => (
       <div
         key={product.id || index}
-        className="grid grid-cols-[auto_3fr_2fr_1.5fr_1.5fr_1fr] gap-2 px-6 py-3 border-b border-gray-200 hover:bg-gray-50 text-sm"
+        className="grid grid-cols-[auto_3fr_2fr_1.5fr_1.5fr_1fr] gap-2 pl-6 pr-6 py-3 border-b border-gray-200 hover:bg-gray-50 text-base"
       >
         <div className="flex items-center">
           <Checkbox
@@ -133,7 +133,7 @@ export default function LabelsPage() {
         <div className="px-2">
           {product.remarks} （批次）
         </div>
-        <div className="pr-24 text-right font-medium">
+        <div className="text-right font-medium pr-20">
           {product.quantity}
         </div>
       </div>

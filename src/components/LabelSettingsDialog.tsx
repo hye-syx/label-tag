@@ -39,7 +39,7 @@ export function LabelSettingsDialog({
   useEffect(() => {
     if (!open) {
       setTimeout(() => {
-        setSpareQuantity(200);
+        setSpareQuantity(0);
         setFontSize(10);
         setStyles({
           chinese: true,

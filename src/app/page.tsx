@@ -3,17 +3,16 @@
 
 import { useRef } from 'react';
 import {
-  Upload, FileSpreadsheet, AlertCircle,
+  Upload, AlertCircle,
   CheckCircle, Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from
   '@/components/ui/card';
 import { useFileUpload } from '@/hooks/useFileUpload';
-import router from 'next/router';
 
 export default function Home() {
-  const { uploadStatus, handleFileSelect, resetUpload }
+  const { uploadStatus, handleFileSelect }
     = useFileUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -38,18 +37,18 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 flex 
 items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-6xl">
         <CardHeader>
-          <CardTitle className="text-3xl font-black 
+          <CardTitle className="text-5xl font-black
 text-center">华旺标签生成</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="text-center">
-            <h2 className="text-lg font-medium 
+            <h2 className="text-3xl font-medium
 mb-4">拖拽文件到此处</h2>
-            <p className="text-sm text-gray-600 mb-6">
-              适用 Excel 文件<br />
-              支持 xlsx 或 xls 格式
+            <p className="text-xl text-gray-600 mb-6">
+              选择 Excel 文件<br />
+              支持 .xlsx 和 .xls 格式
             </p>
 
             <div
@@ -74,15 +73,15 @@ text-red-500 mx-auto mb-4" />
 text-gray-400 mx-auto mb-4" />
               )}
 
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-lg text-gray-500 mb-4">
                 {uploadStatus.message ||
                   '文件不符合等号上传格式'}
               </p>
 
               <Button
                 size="lg"
-                className="bg-gray-800 
-hover:bg-gray-700"
+                className="bg-gray-800
+hover:bg-gray-700 text-xl px-8 py-6"
                 disabled={uploadStatus.status ===
                   'uploading'}
               >
