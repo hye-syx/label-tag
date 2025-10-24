@@ -7,10 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Search } from 'lucide-react';
 import { ProductData } from '@/types';
+import { LabelSettingsDialog } from '@/components/LabelSettingsDialog';
+
 export default function LabelsPage() {
   const [products, setProducts] = useState<ProductData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -142,18 +145,19 @@ export default function LabelsPage() {
           <Button
             className="bg-black hover:bg-gray-800 text-white px-16 py-6 rounded-lg text-xl font-semibold"
             disabled={selectedProducts.length === 0}
-            onClick={() => {
-              // 将选中的产品保存到 localStorage
-              const selected = products.filter(p => selectedProducts.includes(p.id!));
-              localStorage.setItem('selectedProducts', JSON.stringify(selected));
-              // 跳转到生成页面
-              router.push('/generate');
-            }}
+            onClick={() => setDialogOpen(true)}
           >
             生成标签
           </Button>
         </div>
       </div>
+
+      {/* 标签设置弹窗 */}
+      <LabelSettingsDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        selectedProducts={products.filter(p => selectedProducts.includes(p.id!))}
+      />
     </div>
   );
 }
