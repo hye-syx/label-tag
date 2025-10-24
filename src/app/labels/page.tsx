@@ -1,0 +1,158 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Search } from 'lucide-react';
+import { ProductData } from '@/types';
+import { LabelSettingsDialog } from '@/components/LabelSettingsDialog';
+
+export default function LabelsPage() {
+  const [products, setProducts] = useState<ProductData[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedData = localStorage.getItem('labelData');
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          setTimeout(() => {
+            setProducts(parsedData);
+          }, 0);
+        } catch (error) {
+          console.error('解析存储数据失败:', error);
+          router.push('/');
+        }
+      } else {
+        router.push('/');
+      }
+    }
+  }, [router]);
+
+  const filteredProducts = products.filter(product =>
+    product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.productCode.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleSelectProduct = (productId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedProducts([...selectedProducts, productId]);
+    } else {
+      setSelectedProducts(selectedProducts.filter(id => id !== productId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedProducts(filteredProducts.map(p => p.id!));
+    } else {
+      setSelectedProducts([]);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* 标题 - 放大加粗居中 */}
+      <div className="text-center py-12">
+        <h1 className="text-5xl font-black text-gray-900">标签生成</h1>
+      </div>
+
+      {/* 主体内容 */}
+      <div className="px-8 pb-8 max-w-[60%] mx-auto">
+        {/* 顶部区域 */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-medium text-gray-900">产品列表</h2>
+          <Button
+            className="bg-white hover:bg-gray-50 text-black border border-gray-300 px-6 py-2 rounded"
+            onClick={() => router.push('/')}
+          >
+            重新导入
+          </Button>
+        </div>
+
+        {/* 搜索框 */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="搜索产品名称、订单号、货号、批次"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 border border-gray-300 rounded"
+            />
+          </div>
+        </div>
+{/* 表格容器 */}
+<div className="border border-gray-300 rounded-lg overflow-hidden">
+  {/* 表头 - 固定不滚动 */}
+  <div className="bg-white border-b border-gray-300 overflow-y-scroll">
+    <div className="grid grid-cols-[auto_3fr_2fr_1.5fr_1.5fr_1fr] gap-2 px-6 py-3 text-sm font-medium text-gray-500">
+      <div className="flex items-center">
+        <Checkbox
+          checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
+          onCheckedChange={(checked) => handleSelectAll(!!checked)}
+        />
+      </div>
+      <div className="pl-2">产品名称</div>
+      <div className="px-2">订单号</div>
+      <div className="px-2">货号</div>
+      <div className="px-2">批次</div>
+      <div className="pr-24 text-right">数量</div>
+    </div>
+  </div>
+
+  {/* 表体 - 可滚动区域 */}
+  <div className="max-h-[60vh] overflow-y-scroll">
+    {filteredProducts.map((product, index) => (
+      <div
+        key={product.id || index}
+        className="grid grid-cols-[auto_3fr_2fr_1.5fr_1.5fr_1fr] gap-2 px-6 py-3 border-b border-gray-200 hover:bg-gray-50 text-sm"
+      >
+        <div className="flex items-center">
+          <Checkbox
+            checked={selectedProducts.includes(product.id!)}
+            onCheckedChange={(checked) => handleSelectProduct(product.id!, !!checked)}
+          />
+        </div>
+        <div className="pl-2">
+          {product.productName} （产品名称）
+        </div>
+        <div className="px-2">
+          {product.orderNumber} （订单号）
+        </div>
+        <div className="px-2">
+          {product.productCode} （货号）
+        </div>
+        <div className="px-2">
+          {product.remarks} （批次）
+        </div>
+        <div className="pr-24 text-right font-medium">
+          {product.quantity}
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+        {/* 底部生成标签按钮 */}
+        <div className="flex justify-end mt-6">
+          <Button
+            className="bg-black hover:bg-gray-800 text-white px-16 py-6 rounded-lg text-xl font-semibold"
+            disabled={selectedProducts.length === 0}
+            onClick={() => {
+              console.log('生成标签', selectedProducts);
+            }}
+          >
+            生成标签
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
