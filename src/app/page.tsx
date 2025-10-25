@@ -75,7 +75,7 @@ text-gray-400 mx-auto mb-4" />
 
               <p className="text-lg text-gray-500 mb-4">
                 {uploadStatus.message ||
-                  '文件不符合等号上传格式'}
+                  '拖拽文件到此处或点击选择文件'}
               </p>
 
               <Button
