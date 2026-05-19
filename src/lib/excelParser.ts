@@ -38,46 +38,70 @@ const findKeywordPosition = (worksheet: XLSX.WorkSheet,
     return null;
 };
 
-// 提取某列下方的所有数据
-const extractColumnData = (worksheet: XLSX.WorkSheet, col:
-    number, startRow: number): string[] => {
+const getCellValue = (worksheet: XLSX.WorkSheet, row: number,
+    col: number): string => {
+    const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+    const cell = worksheet[cellAddress];
+
+    return cell && cell.v ? cell.v.toString().trim() : '';
+};
+
+const parseQuantity = (value: string): number => {
+    const normalizedValue = value.replace(/,/g, '');
+    const parsedValue = parseInt(normalizedValue, 10);
+
+    return Number.isNaN(parsedValue) ? 0 : parsedValue;
+};
+
+// 按行提取数据，避免单列空值导致字段错位
+const extractRowData = (worksheet: XLSX.WorkSheet, positions: {
+    productName: { row: number, col: number };
+    orderNumber: { row: number, col: number };
+    productCode: { row: number, col: number };
+    quantity: { row: number, col: number };
+    remarks: { row: number, col: number };
+}): ProductData[] => {
     const range = XLSX.utils.decode_range(worksheet['!ref']
         || 'A1:Z100');
-    const data: string[] = [];
+    const products: ProductData[] = [];
+    const startRow = Math.max(
+        positions.productName.row,
+        positions.orderNumber.row,
+        positions.productCode.row,
+        positions.quantity.row,
+        positions.remarks.row
+    ) + 1;
 
-    for (let row = startRow + 1; row <= range.e.r; row++) {
-        const cellAddress = XLSX.utils.encode_cell({
-            r: row, c:
-                col
-        });
-        const cell = worksheet[cellAddress];
-        const value = cell && cell.v ? cell.v.toString().trim()
-            : '';
+    for (let row = startRow; row <= range.e.r; row++) {
+        const productName = getCellValue(worksheet, row,
+            positions.productName.col);
+        const orderNumber = getCellValue(worksheet, row,
+            positions.orderNumber.col);
+        const productCode = getCellValue(worksheet, row,
+            positions.productCode.col);
+        const quantity = getCellValue(worksheet, row,
+            positions.quantity.col);
+        const remarks = getCellValue(worksheet, row,
+            positions.remarks.col);
 
-        // 如果遇到空行且已经有数据了，可能是数据结束
-        if (!value && data.length > 0) {
-            // 检查后面几行是否还有数据
-            let hasMoreData = false;
-            for (let checkRow = row + 1; checkRow <= Math.min(row
-                + 5, range.e.r); checkRow++) {
-                const checkAddress = XLSX.utils.encode_cell({
-                    r:
-                        checkRow, c: col
-                });
-                const checkCell = worksheet[checkAddress];
-                if (checkCell && checkCell.v &&
-                    checkCell.v.toString().trim()) {
-                    hasMoreData = true;
-                    break;
-                }
-            }
-            if (!hasMoreData) break;
+        const isEmptyRow = !productName && !orderNumber &&
+            !productCode && !quantity && !remarks;
+
+        if (isEmptyRow) {
+            continue;
         }
 
-        data.push(value);
+        products.push({
+            id: `product-${products.length + 1}`,
+            productName,
+            orderNumber,
+            productCode,
+            quantity: parseQuantity(quantity),
+            remarks
+        });
     }
 
-    return data;
+    return products;
 };
 
 export const parseExcelFile = async (file: File):
@@ -136,41 +160,13 @@ export const parseExcelFile = async (file: File):
                     throw new Error('未找到数量列，请检查表格是否包含：数量、件数、总数等关键字');
                 }
 
-                // 提取各列数据
-                const productNames = extractColumnData(worksheet,
-                    productNamePos.col, productNamePos.row);
-                const orderNumbers = extractColumnData(worksheet,
-                    orderNumberPos.col, orderNumberPos.row);
-                const productCodes = extractColumnData(worksheet,
-                    productCodePos.col, productCodePos.row);
-                const quantities = extractColumnData(worksheet,
-                    quantityPos.col, quantityPos.row);
-                const remarks = extractColumnData(worksheet,
-                    remarksPos.col, remarksPos.row);
-
-                // 构建产品数据
-                const products: ProductData[] = [];
-                const maxLength = Math.max(productNames.length,
-                    orderNumbers.length, productCodes.length,
-                    quantities.length, remarks.length);
-
-                for (let i = 0; i < maxLength; i++) {
-                    const productName = productNames[i] || '';
-
-                    // 跳过空的产品名称
-                    if (!productName) continue;
-
-                    const product: ProductData = {
-                        id: `product-${i + 1}`,
-                        productName: productName,
-                        orderNumber: orderNumbers[i] || '',
-                        productCode: productCodes[i] || '',
-                        quantity: parseInt(quantities[i]) || 0,
-                        remarks: remarks[i] || ''
-                    };
-
-                    products.push(product);
-                }
+                const products = extractRowData(worksheet, {
+                    productName: productNamePos,
+                    orderNumber: orderNumberPos,
+                    productCode: productCodePos,
+                    quantity: quantityPos,
+                    remarks: remarksPos
+                });
 
                 if (products.length === 0) {
                     throw new Error('未找到有效的产品数据');

@@ -56,7 +56,7 @@ export default function LabelsPage() {
     const searchValue = searchTerm.trim().toLowerCase().replace(/\s+/g, '');
 
     // 批次筛选 - 支持多选
-    if (selectedBatches.length > 0 && product.remarks && !selectedBatches.includes(product.remarks)) {
+    if (selectedBatches.length > 0 && !selectedBatches.includes(product.remarks)) {
       return false;
     }
 
@@ -84,6 +84,11 @@ export default function LabelsPage() {
       product.quantity?.toString().replace(/\s+/g, '').includes(searchValue)
     );
   });
+
+  const allFilteredSelected = filteredProducts.length > 0 &&
+    filteredProducts.every(product =>
+      selectedProducts.includes(product.id!)
+    );
 
   const handleSelectProduct = (productId: string, checked: boolean) => {
     if (checked) {
@@ -244,7 +249,7 @@ export default function LabelsPage() {
     <div className="grid grid-cols-[auto_3fr_2fr_1.5fr_1.5fr_1.5fr] gap-2 pl-6 pr-6 py-3 text-base font-medium text-gray-500">
       <div className="flex items-center">
         <Checkbox
-          checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
+          checked={allFilteredSelected}
           onCheckedChange={(checked) => handleSelectAll(!!checked)}
         />
       </div>
